@@ -54,7 +54,7 @@ namespace MoyoProjectAPI.Controllers
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
-                var token = GenerateJwtToken(user);
+                var token = await GenerateJwtToken(user);
                 return Ok(new { Token = token });
             }
             return Unauthorized();
@@ -68,12 +68,10 @@ namespace MoyoProjectAPI.Controllers
             return Challenge(properties, "GitHub");
         }
 
-
         [HttpGet("github-callback")]
         public async Task<IActionResult> GitHubCallback()
         {
-            var returnUrl = "http://localhost:4200/product";
-
+            var returnUrl = "http://localhost:4200/login";
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
@@ -96,34 +94,71 @@ namespace MoyoProjectAPI.Controllers
                     return BadRequest($"User creation failed: {string.Join(", ", createUserResult.Errors.Select(e => e.Description))}");
                 }
 
+                // Ensure the role exists
                 if (!await _roleManager.RoleExistsAsync("Capturer"))
                 {
-                    await _roleManager.CreateAsync(new IdentityRole("Capturer"));
+                    var roleResult = await _roleManager.CreateAsync(new IdentityRole("Capturer"));
+                    if (!roleResult.Succeeded)
+                    {
+                        return BadRequest($"Role creation failed: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
+                    }
                 }
 
-                await _userManager.AddToRoleAsync(user, "Capturer");
+                // Assign default role "Capturer" to the user
+                var addToRoleResult = await _userManager.AddToRoleAsync(user, "Capturer");
+                
+                if (!addToRoleResult.Succeeded)
+                {
+                    return BadRequest($"Adding role to user failed: {string.Join(", ", addToRoleResult.Errors.Select(e => e.Description))}");
+                }
+
                 await _userManager.AddLoginAsync(user, info);
             }
             else
             {
-                await _userManager.AddLoginAsync(user, info);
+                // Ensure the user is linked to the GitHub login
+                var existingLogins = await _userManager.GetLoginsAsync(user);
+                if (existingLogins.All(x => x.LoginProvider != info.LoginProvider || x.ProviderKey != info.ProviderKey))
+                {
+                    var addLoginResult = await _userManager.AddLoginAsync(user, info);
+                    if (!addLoginResult.Succeeded)
+                    {
+                        return BadRequest($"Adding external login failed: {string.Join(", ", addLoginResult.Errors.Select(e => e.Description))}");
+                    }
+                }
+
+                // Ensure the user has the role assigned if they don't have it yet
+                var userRoles = await _userManager.GetRolesAsync(user);
+                if (!userRoles.Contains("Capturer"))
+                {
+                    var addToRoleResult = await _userManager.AddToRoleAsync(user, "Capturer");
+                    if (!addToRoleResult.Succeeded)
+                    {
+                        return BadRequest($"Adding role to user failed: {string.Join(", ", addToRoleResult.Errors.Select(e => e.Description))}");
+                    }
+                }
             }
 
             await _signInManager.SignInAsync(user, isPersistent: false);
 
-            var token = GenerateJwtToken(user);
+            var token = await GenerateJwtToken(user);
             return Redirect($"{returnUrl}?token={token}");
         }
 
 
 
-        private string GenerateJwtToken(ApplicationUser user)
+
+        private async Task<string> GenerateJwtToken(ApplicationUser user)
         {
-            var claims = new[]
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var claims = new List<Claim>
             {
-        new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-    };
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            claims.AddRange(roles.Select(role => new Claim(ClaimsIdentity.DefaultRoleClaimType, role)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -137,7 +172,6 @@ namespace MoyoProjectAPI.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
     }
 }
 
