@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using MoyoProjectAPI.Data;
 using MoyoProjectAPI.Data.ProductAPI.Data;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // CORS configuration

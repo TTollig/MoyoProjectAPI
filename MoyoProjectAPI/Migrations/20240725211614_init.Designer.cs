@@ -12,7 +12,7 @@ using MoyoProjectAPI.Data.ProductAPI.Data;
 namespace MoyoProjectAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240725180437_init")]
+    [Migration("20240725211614_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -239,7 +239,6 @@ namespace MoyoProjectAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
