@@ -61,10 +61,16 @@ namespace MoyoProjectAPI.Controllers
                 return NotFound();
             }
 
-            // Update the product properties except ID and status
-            product.Name = updatedProduct.Name;
-            product.Description = updatedProduct.Description;
+            // Create a new record in the EditProduct table
+            var editProduct = new EditProduct
+            {
+                Name = updatedProduct.Name,
+                Description = updatedProduct.Description,
+                ProductId = product.Id,
+                Status = "Pending" // Set the status to "Pending" for review
+            };
 
+            _context.EditProducts.Add(editProduct);
             await _context.SaveChangesAsync();
 
             return NoContent();
