@@ -32,7 +32,7 @@ namespace MoyoProjectAPI.Controllers
 
         [HttpPut("UpdateProductStatus/{id}/status")]
         [Authorize(Roles = "Manager")]
-        public async Task<IActionResult> UpdateProductStatus(int id, [FromBody] string status)
+        public async Task<IActionResult> UpdateProductStatus(int id, [FromBody] UpdateStatus status)
         {
             var product = await _context.Products.FindAsync(id);
             if (product == null)
@@ -40,12 +40,12 @@ namespace MoyoProjectAPI.Controllers
                 return NotFound();
             }
 
-            if (status != "Approved" && status != "Deleted")
+            if (status.status != "Approved" && status.status != "Deleted")
             {
                 return BadRequest("Invalid status value.");
             }
 
-            product.Status = status;
+            product.Status = status.status;
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -105,4 +105,9 @@ namespace MoyoProjectAPI.Controllers
             return product;
         }
     }
+}
+
+public class UpdateStatus
+{
+    public string status { get; set; }
 }
