@@ -12,7 +12,7 @@ using MoyoProjectAPI.Data.ProductAPI.Data;
 namespace MoyoProjectAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240729142645_init")]
+    [Migration("20240729145642_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -222,6 +222,35 @@ namespace MoyoProjectAPI.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("MoyoProjectAPI.Data.EditProduct", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("EditProducts");
+                });
+
             modelBuilder.Entity("MoyoProjectAPI.Data.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -295,6 +324,22 @@ namespace MoyoProjectAPI.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MoyoProjectAPI.Data.EditProduct", b =>
+                {
+                    b.HasOne("MoyoProjectAPI.Data.Product", "Product")
+                        .WithMany("EditProducts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("MoyoProjectAPI.Data.Product", b =>
+                {
+                    b.Navigation("EditProducts");
                 });
 #pragma warning restore 612, 618
         }

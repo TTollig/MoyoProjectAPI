@@ -14,6 +14,7 @@ namespace MoyoProjectAPI.Data
             }
 
             public DbSet<Product> Products { get; set; }
+            public DbSet<EditProduct> EditProducts { get; set; }
         }
     }
 
