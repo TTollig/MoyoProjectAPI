@@ -12,7 +12,7 @@ using MoyoProjectAPI.Data.ProductAPI.Data;
 namespace MoyoProjectAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240725211614_init")]
+    [Migration("20240729142645_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
