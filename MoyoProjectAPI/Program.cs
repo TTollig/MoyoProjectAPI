@@ -147,6 +147,6 @@ public static class SeedData
             }
         }
 
-        // Optionally, seed initial users
+        
     }
 }
