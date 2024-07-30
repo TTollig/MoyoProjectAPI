@@ -7,7 +7,6 @@ using Microsoft.OpenApi.Models;
 using MoyoProjectAPI.Data;
 using MoyoProjectAPI.Data.ProductAPI.Data;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // CORS configuration
@@ -64,7 +63,6 @@ builder.Services.AddAuthentication(options =>
     options.CallbackPath = new PathString("/signin-github");
     options.Scope.Add("user:email");
 });
-
 
 builder.Services.AddControllers();
 builder.Services.AddAuthorization(options =>
@@ -146,7 +144,5 @@ public static class SeedData
                 await roleManager.CreateAsync(new IdentityRole(role));
             }
         }
-
-        
     }
 }
