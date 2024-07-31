@@ -94,7 +94,7 @@ namespace MoyoProjectAPI.Controllers
                     return BadRequest($"User creation failed: {string.Join(", ", createUserResult.Errors.Select(e => e.Description))}");
                 }
 
-                // Ensure the role exists
+          
                 if (!await _roleManager.RoleExistsAsync("Capturer"))
                 {
                     var roleResult = await _roleManager.CreateAsync(new IdentityRole("Capturer"));
@@ -104,7 +104,7 @@ namespace MoyoProjectAPI.Controllers
                     }
                 }
 
-                // Assign default role "Capturer" to the user
+             
                 var addToRoleResult = await _userManager.AddToRoleAsync(user, "Capturer");
                 
                 if (!addToRoleResult.Succeeded)
@@ -116,7 +116,7 @@ namespace MoyoProjectAPI.Controllers
             }
             else
             {
-                // Ensure the user is linked to the GitHub login
+               
                 var existingLogins = await _userManager.GetLoginsAsync(user);
                 if (existingLogins.All(x => x.LoginProvider != info.LoginProvider || x.ProviderKey != info.ProviderKey))
                 {
@@ -127,7 +127,7 @@ namespace MoyoProjectAPI.Controllers
                     }
                 }
 
-                // Ensure the user has the role assigned if they don't have it yet
+                
                 var userRoles = await _userManager.GetRolesAsync(user);
                 if (!userRoles.Contains("Capturer"))
                 {
@@ -144,9 +144,6 @@ namespace MoyoProjectAPI.Controllers
             var token = await GenerateJwtToken(user);
             return Redirect($"{returnUrl}?token={token}");
         }
-
-
-
 
         private async Task<string> GenerateJwtToken(ApplicationUser user)
         {

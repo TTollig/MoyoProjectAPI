@@ -24,7 +24,7 @@ namespace MoyoProjectAPI.Controllers
         [Authorize(Roles = "Capturer,Manager")]
         public async Task<IActionResult> AddProduct(Product product)
         {
-            product.Status = "Created"; // Automatically set the status to "Created"
+            product.Status = "Created"; 
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetProductById), new { id = product.Id }, product);
@@ -61,13 +61,13 @@ namespace MoyoProjectAPI.Controllers
                 return NotFound();
             }
 
-            // Create a new record in the EditProduct table
+            
             var editProduct = new EditProduct
             {
                 Name = updatedProduct.Name,
                 Description = updatedProduct.Description,
                 ProductId = product.Id,
-                Status = "Pending" // Set the status to "Pending" for review
+                Status = "Pending" 
             };
 
             _context.EditProducts.Add(editProduct);

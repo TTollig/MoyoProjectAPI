@@ -10,7 +10,6 @@ using MoyoProjectAPI.Data.ProductAPI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// CORS configuration
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
@@ -22,7 +21,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Database and Identity configuration
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -38,7 +36,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// Authentication configuration
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
